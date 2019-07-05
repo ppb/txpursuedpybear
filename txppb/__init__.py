@@ -15,7 +15,6 @@ def main_loop(reactor, engine):
     def loop_once(engine):
         if not engine.running:
             raise _FinishLoop(engine)
-        print("woohoo")
         engine.loop_once()
     loop = task.LoopingCall(loop_once, engine)
     loop.clock = reactor
