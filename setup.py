@@ -1,8 +1,8 @@
 import setuptools 
 
 setuptools.setup(
-      name='txppb',
-      version='0.1',
-      packages=['txppb'],
+    use_scm_version={
+        'local_scheme': 'dirty-tag',
+    },
+    install_requires=['Twisted', 'ppb'],
 )
-
