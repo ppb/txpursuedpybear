@@ -27,23 +27,31 @@ def main_loop(reactor, engine):
 
 def make_engine(reactor=None,
                 setup: Callable[[Any, BaseScene], None]=None, *,
-                starting_scene=BaseScene, title="PursedPyBear"):
+                starting_scene=BaseScene, title="PursedPyBear",
+                **kwargs):
     if reactor is None:
         from twisted.internet import reactor as _default_reactor
         reactor = _default_reactor
     setup = functools.partial(setup, reactor)
-    return ppb.make_engine(setup, starting_scene=starting_scene, title=title)
+    return ppb.make_engine(
+        setup,
+        starting_scene=starting_scene,
+        title=title,
+        **kwargs
+    )
 
 
 @defer.inlineCallbacks
 def run(reactor=None,
         setup: Callable[[Any, BaseScene], None]=None, *,
-        starting_scene=BaseScene, title="PursedPyBear"):
+        starting_scene=BaseScene, title="PursedPyBear",
+        **kwargs):
     engine = make_engine(
         reactor,
         setup,
         starting_scene=starting_scene,
-        title=title
+        title=title,
+        **kwargs,
     )
     with engine:
         yield main_loop(reactor, engine)
