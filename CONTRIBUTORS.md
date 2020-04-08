@@ -1,4 +1,4 @@
-# ppb-vector Contributors
+# txppb Contributors
 
 ## Maintainers
 
