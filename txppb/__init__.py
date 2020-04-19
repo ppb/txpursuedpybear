@@ -1,5 +1,5 @@
 import functools
-from typing import Callable
+from typing import Callable, Optional
 
 from twisted.internet import defer, task
 from twisted.internet import interfaces
@@ -12,10 +12,18 @@ class _FinishLoop(Exception):
 
 
 @defer.inlineCallbacks
-def main_loop(reactor: interfaces.IReactorTime, engine: ppb.engine.GameEngine):
-    """Run forever
+def main_loop(
+        reactor: interfaces.IReactorTime,
+        engine: ppb.engine.GameEngine
+    ) -> defer.Deferred:
+    """Run until the game window is closed
 
-    Run blah blah"""
+    Start the engine, and then call it in a loop,
+    until the engine is done running.
+    The deferred is fired with `None`
+    if the loop closed normally,
+    or with an error if there was a problem with the engine.
+    """
     def loop_once(engine):
         if not engine.running:
             raise _FinishLoop(engine)
@@ -29,29 +37,27 @@ def main_loop(reactor: interfaces.IReactorTime, engine: ppb.engine.GameEngine):
         pass
 
 
-def make_engine(reactor=None,
-                setup: Callable[[BaseScene], None]=None, *,
-                starting_scene=BaseScene, title="PursedPyBear",
-                **kwargs):
+@defer.inlineCallbacks
+def run(
+        setup: Callable[[BaseScene], None]=None,
+        reactor: Optional[interfaces.IReactorTime]=None,
+        *,
+        starting_scene: type=BaseScene,
+        title: str="PursedPyBear",
+        **kwargs
+    ) -> defer.Deferred:
+    """Run until the game window is closed
+
+    Start the engine, and then call it in a loop,
+    until the engine is done running.
+    The deferred is fired with `None`
+    if the loop closed normally,
+    or with an error if there was a problem with the engine.
+    """
     if reactor is None:
         from twisted.internet import reactor as _default_reactor
         reactor = _default_reactor
-    return ppb.make_engine(
-        setup,
-        starting_scene=starting_scene,
-        title=title,
-        reactor=reactor,
-        **kwargs
-    )
-
-
-@defer.inlineCallbacks
-def run(setup: Callable[[BaseScene], None]=None,
-        reactor=None, *,
-        starting_scene=BaseScene, title="PursedPyBear",
-        **kwargs):
-    engine = make_engine(
-        reactor,
+    engine = ppb.make_engine(
         setup,
         starting_scene=starting_scene,
         title=title,
