@@ -1,7 +1,8 @@
 import functools
-from typing import Any, Callable
+from typing import Callable
 
 from twisted.internet import defer, task
+from twisted.internet import interfaces
 import ppb
 from ppb.scenes import BaseScene
 
@@ -11,7 +12,10 @@ class _FinishLoop(Exception):
 
 
 @defer.inlineCallbacks
-def main_loop(reactor, engine):
+def main_loop(reactor: interfaces.IReactor, engine: ppb.engine.GameEngine):
+    """Run forever
+
+    Run blah blah"""
     def loop_once(engine):
         if not engine.running:
             raise _FinishLoop(engine)
@@ -26,24 +30,24 @@ def main_loop(reactor, engine):
 
 
 def make_engine(reactor=None,
-                setup: Callable[[Any, BaseScene], None]=None, *,
+                setup: Callable[BaseScene], None]=None, *,
                 starting_scene=BaseScene, title="PursedPyBear",
                 **kwargs):
     if reactor is None:
         from twisted.internet import reactor as _default_reactor
         reactor = _default_reactor
-    setup = functools.partial(setup, reactor)
     return ppb.make_engine(
         setup,
         starting_scene=starting_scene,
         title=title,
+        reactor=reactor,
         **kwargs
     )
 
 
 @defer.inlineCallbacks
-def run(reactor=None,
-        setup: Callable[[Any, BaseScene], None]=None, *,
+def run(setup: Callable[[BaseScene], None]=None,
+        reactor=None, *,
         starting_scene=BaseScene, title="PursedPyBear",
         **kwargs):
     engine = make_engine(
