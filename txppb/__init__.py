@@ -12,7 +12,7 @@ class _FinishLoop(Exception):
 
 
 @defer.inlineCallbacks
-def main_loop(reactor: interfaces.IReactor, engine: ppb.engine.GameEngine):
+def main_loop(reactor: interfaces.IReactorTime, engine: ppb.engine.GameEngine):
     """Run forever
 
     Run blah blah"""
@@ -30,7 +30,7 @@ def main_loop(reactor: interfaces.IReactor, engine: ppb.engine.GameEngine):
 
 
 def make_engine(reactor=None,
-                setup: Callable[BaseScene], None]=None, *,
+                setup: Callable[[BaseScene], None]=None, *,
                 starting_scene=BaseScene, title="PursedPyBear",
                 **kwargs):
     if reactor is None:
