@@ -1,7 +1,8 @@
 import functools
-from typing import Any, Callable
+from typing import Callable, Optional
 
 from twisted.internet import defer, task
+from twisted.internet import interfaces
 import ppb
 from ppb.scenes import BaseScene
 
@@ -11,7 +12,18 @@ class _FinishLoop(Exception):
 
 
 @defer.inlineCallbacks
-def main_loop(reactor, engine):
+def main_loop(
+        reactor: interfaces.IReactorTime,
+        engine: ppb.engine.GameEngine
+    ) -> defer.Deferred:
+    """Run until the game window is closed
+
+    Start the engine, and then call it in a loop,
+    until the engine is done running.
+    The deferred is fired with `None`
+    if the loop closed normally,
+    or with an error if there was a problem with the engine.
+    """
     def loop_once(engine):
         if not engine.running:
             raise _FinishLoop(engine)
@@ -25,29 +37,27 @@ def main_loop(reactor, engine):
         pass
 
 
-def make_engine(reactor=None,
-                setup: Callable[[Any, BaseScene], None]=None, *,
-                starting_scene=BaseScene, title="PursedPyBear",
-                **kwargs):
+@defer.inlineCallbacks
+def run(
+        setup: Callable[[BaseScene], None]=None,
+        reactor: Optional[interfaces.IReactorTime]=None,
+        *,
+        starting_scene: type=BaseScene,
+        title: str="PursedPyBear",
+        **kwargs
+    ) -> defer.Deferred:
+    """Run until the game window is closed
+
+    Start the engine, and then call it in a loop,
+    until the engine is done running.
+    The deferred is fired with `None`
+    if the loop closed normally,
+    or with an error if there was a problem with the engine.
+    """
     if reactor is None:
         from twisted.internet import reactor as _default_reactor
         reactor = _default_reactor
-    setup = functools.partial(setup, reactor)
-    return ppb.make_engine(
-        setup,
-        starting_scene=starting_scene,
-        title=title,
-        **kwargs
-    )
-
-
-@defer.inlineCallbacks
-def run(reactor=None,
-        setup: Callable[[Any, BaseScene], None]=None, *,
-        starting_scene=BaseScene, title="PursedPyBear",
-        **kwargs):
-    engine = make_engine(
-        reactor,
+    engine = ppb.make_engine(
         setup,
         starting_scene=starting_scene,
         title=title,
