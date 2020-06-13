@@ -14,7 +14,8 @@ class _FinishLoop(Exception):
 @defer.inlineCallbacks
 def main_loop(
         reactor: interfaces.IReactorTime,
-        engine: ppb.engine.GameEngine
+        engine: ppb.engine.GameEngine,
+        frequency: ppb.engine.GameEngine=None,
     ) -> defer.Deferred:
     """Run until the game window is closed
 
@@ -31,8 +32,10 @@ def main_loop(
     loop = task.LoopingCall(loop_once, engine)
     loop.clock = reactor
     engine.start()
+    if frequency is None:
+        frequency = 1000
     try:
-        yield loop.start(0.001)
+        yield loop.start(1.0 / frequency)
     except _FinishLoop:
         pass
 
@@ -64,4 +67,4 @@ def run(
         **kwargs,
     )
     with engine:
-        yield main_loop(reactor, engine)
+        yield main_loop(reactor, engine, frequency=kwargs.get('frequency'))
