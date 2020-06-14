@@ -15,7 +15,7 @@ class _FinishLoop(Exception):
 def main_loop(
         reactor: interfaces.IReactorTime,
         engine: ppb.engine.GameEngine,
-        frequency: ppb.engine.GameEngine=None,
+        frequency: float=None,
     ) -> defer.Deferred:
     """Run until the game window is closed
 
